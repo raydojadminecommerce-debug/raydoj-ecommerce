@@ -100,6 +100,8 @@
   padding: 10px 40px 10px 40px; 
   border: 1px solid #ccc;
   border-radius: 4px;
+  padding-left: 40px;  /* Pushes the typing cursor to the right, past the email/lock icon */
+  padding-right: 40px; /* Protects your text from overlapping the eye icon on the right! */
 }
 
 .terms-checkbox {

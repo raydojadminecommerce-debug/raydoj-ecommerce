@@ -144,12 +144,41 @@
   margin-bottom: 10px;
 }
 
-/* This is the magic wrapper that lets us put the icon inside the input field */
+/* --- THE ULTIMATE INPUT FIX --- */
 .input-with-icon {
   position: relative;
   display: flex;
   align-items: center;
+  width: 100%; /* Keeps the container perfectly sized */
 }
+
+.input-icon {
+  position: absolute;
+  left: 12px; 
+  width: 18px;
+  height: 18px;
+  color: #666;
+  z-index: 2; /* Forces the icon to float above the text */
+}
+
+.password-toggle-icon {
+  position: absolute;
+  right: 12px;
+  width: 18px;
+  height: 18px;
+  color: #666;
+  cursor: pointer;
+  z-index: 2; /* Forces the eye icon to float above the text */
+}
+
+.input-with-icon input {
+  width: 100% !important;
+  box-sizing: border-box !important; /* Stops the padding from stretching the box! */
+  padding: 12px 40px 12px 40px !important; /* 40px perfectly clears both icons */
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+/* ------------------------------ */
 
 /* Positions the icon on the left side of the box */
 .input-icon {
@@ -166,6 +195,8 @@
   padding: 10px 10px 10px 40px; /* 40px padding on the left makes room for the icon */
   border: 1px solid #ccc;
   border-radius: 4px;
+  padding-left: 40px;  /* Pushes the typing cursor to the right, past the email/lock icon */
+  padding-right: 40px; /* Protects your text from overlapping the eye icon on the right! */
 }
 
 /* Makes the Google button arrange the G icon and text side-by-side */

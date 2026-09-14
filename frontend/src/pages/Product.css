@@ -310,3 +310,43 @@
     margin: 0 !important;
   }
 }
+
+
+
+
+
+
+/* ADD TO CART ANIMATION MAGIC */
+.btn-solid.added-success {
+  background-color: #4CAF50 !important; /* Premium Success Green */
+  color: white !important;
+  transform: scale(1.05); /* Gives it a slight pop/bounce */
+  transition: all 0.3s ease-in-out;
+  border-color: #4CAF50 !important;
+}
+
+
+
+
+
+/* --- PROFESSIONAL ADD TO CART BUTTON ANIMATIONS --- */
+.btn-solid {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-solid.added-success {
+  background: linear-gradient(135deg, #2ecc71, #27ae60) !important;
+  color: white !important;
+  border-color: #2ecc71 !important;
+  transform: scale(1.02);
+  box-shadow: 0 6px 20px rgba(46, 204, 113, 0.4);
+  animation: buttonPulse 0.4s ease-in-out;
+}
+
+@keyframes buttonPulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.06); }
+  100% { transform: scale(1.02); }
+}

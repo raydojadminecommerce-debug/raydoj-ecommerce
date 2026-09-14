@@ -11,18 +11,20 @@ export default function SignUpModal({ isOpen, onClose, onSignUpSuccess, onSwitch
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   
-  // Specific errors for each field
   const [nameError, setNameError] = useState('');
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [confirmError, setConfirmError] = useState('');
+  
+  // NEW: To show errors from the backend (like "Email already exists")
+  const [serverError, setServerError] = useState(''); 
 
-  const handleSignUpClick = () => {
-    // Reset all errors
+  const handleSignUpClick = async () => {
     setNameError('');
     setEmailError('');
     setPasswordError('');
     setConfirmError('');
+    setServerError('');
     let isValid = true;
 
     if (fullName.trim() === '') {
@@ -43,7 +45,25 @@ export default function SignUpModal({ isOpen, onClose, onSignUpSuccess, onSwitch
     }
 
     if (isValid) {
-      onSignUpSuccess();
+      try {
+        // 🔥 THE MAGIC: Sending data to your MongoDB Backend!
+        const response = await fetch('http://localhost:5000/api/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: fullName, email, password })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          alert('Account created successfully! Please login.');
+          onSwitchToLogin(); // Switches to the login screen automatically!
+        } else {
+          setServerError(data.message || 'Registration failed.');
+        }
+      } catch (error) {
+        setServerError('Server is down. Please try again later.');
+      }
     }
   };
 
@@ -71,7 +91,7 @@ export default function SignUpModal({ isOpen, onClose, onSignUpSuccess, onSwitch
                 placeholder="Enter your full name." 
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
-                className={nameError ? 'input-error' : ''} /* Triggers the shake! */
+                className={nameError ? 'input-error' : ''} 
               />
             </div>
             {nameError && <div className="field-error-text">{nameError}</div>}
@@ -86,7 +106,7 @@ export default function SignUpModal({ isOpen, onClose, onSignUpSuccess, onSwitch
                 placeholder="Enter your email address." 
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className={emailError ? 'input-error' : ''} /* Triggers the shake! */
+                className={emailError ? 'input-error' : ''} 
               />
             </div>
             {emailError && <div className="field-error-text">{emailError}</div>}
@@ -101,7 +121,7 @@ export default function SignUpModal({ isOpen, onClose, onSignUpSuccess, onSwitch
                 placeholder="Create your password." 
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className={passwordError ? 'input-error' : ''} /* Triggers the shake! */
+                className={passwordError ? 'input-error' : ''} 
               />
               <svg className="password-toggle-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" onClick={() => setShowPassword(!showPassword)}>
                 {showPassword ? (
@@ -123,7 +143,7 @@ export default function SignUpModal({ isOpen, onClose, onSignUpSuccess, onSwitch
                 placeholder="Confirm your password." 
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className={confirmError ? 'input-error' : ''} /* Triggers the shake! */
+                className={confirmError ? 'input-error' : ''} 
               />
               <svg className="password-toggle-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
                 {showConfirmPassword ? (
@@ -142,6 +162,9 @@ export default function SignUpModal({ isOpen, onClose, onSignUpSuccess, onSwitch
               I agree <span className="green-link">Terms of Service</span> and <span className="green-link">Privacy Policy</span>
             </label>
           </div>
+
+          {/* Shows backend errors here! */}
+          {serverError && <div className="field-error-text" style={{textAlign: 'center', marginBottom: '10px'}}>{serverError}</div>}
 
           <button type="button" className="login-submit-btn" onClick={handleSignUpClick}>
             Sign Up
