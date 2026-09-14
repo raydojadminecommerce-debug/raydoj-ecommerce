@@ -1,0 +1,249 @@
+/* 1. Animation for the dark background fading in */
+@keyframes fadeIn {
+  from { background: rgba(0, 0, 0, 0); }
+  to { background: rgba(0, 0, 0, 0.6); }
+}
+
+/* 2. Animation for the box popping up and scaling to full size */
+@keyframes popUp {
+  from {
+    opacity: 0;
+    transform: scale(0.8) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.6); 
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; 
+  /* Trigger background fade-in */
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+.modal-content {
+  background: #dadada; 
+  padding: 40px;
+  border-radius: 8px;
+  width: 90%; /* <--- Changed to 90% so it leaves a gap on phone screens! */
+  max-width: 400px;
+  position: relative;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  animation: popUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  box-sizing: border-box; /* <--- Add this so the 40px padding doesn't stretch the box */
+}
+/* --- Everything below here stays exactly the same as before --- */
+
+.close-btn {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  transition: transform 0.2s ease; /* Adds a tiny hover effect to the X */
+}
+
+.close-btn:hover {
+  transform: scale(1.2);
+}
+
+/* Center the header text and add space below it */
+.modal-header {
+  text-align: center; 
+  margin-bottom: 25px; /* <--- This adds the perfect amount of space! */
+}
+
+/* Optional: You can also make that specific sentence look a bit softer by adding this right below it: */
+.modal-header p {
+  color: #444;
+  font-size: 14px;
+}
+.input-group {
+  margin-bottom: 15px;
+  text-align: left;
+}
+
+.input-group label {
+  display: block;
+  font-size: 14px;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  margin-bottom: 20px;
+}
+
+.login-submit-btn {
+  width: 100%;
+  padding: 12px;
+  background: black; 
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+
+
+.divider {
+  margin: 20px 0;
+  text-align: center;
+}
+
+.google-btn {
+  width: 100%;
+  padding: 10px;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.google-btn:hover {
+  background: #f1f1f1;
+}
+
+
+
+
+/* --- NEW ICON STYLES --- */
+
+/* Center the header text and logo */
+.modal-header {
+  text-align: center; 
+}
+
+.modal-logo {
+  height: 40px; /* Adjust size of logo if needed */
+  margin-bottom: 10px;
+}
+
+/* This is the magic wrapper that lets us put the icon inside the input field */
+.input-with-icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+/* Positions the icon on the left side of the box */
+.input-icon {
+  position: absolute;
+  left: 12px; /* Distance from left edge */
+  width: 18px;
+  height: 18px;
+  color: #666; /* Grey icon color */
+}
+
+/* We have to add padding to the left side of the text so it doesn't type OVER the icon! */
+.input-with-icon input {
+  width: 100%;
+  padding: 10px 10px 10px 40px; /* 40px padding on the left makes room for the icon */
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+/* Makes the Google button arrange the G icon and text side-by-side */
+.google-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px; /* Space between the G and the text */
+  width: 100%;
+  padding: 10px;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  font-weight: 600;
+  color: #333;
+}
+
+.google-icon {
+  width: 20px;
+  height: 20px;
+}
+
+
+
+/* Adds space above the sign up text and centers it */
+.signup-link {
+  text-align: center;
+  margin-top: 25px; /* <--- This adds the perfect space! */
+  font-size: 14px;
+  color: #333;
+}
+
+/* Optional: Make the actual "Sign Up" link look a bit nicer */
+.signup-link a {
+  color: #3b5e40; /* Matches your dark green login button */
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.signup-link a:hover {
+  text-decoration: underline;
+}
+
+
+/* Changes the Forgot Password link to match your green branding */
+.forgot-password {
+  color: #3b5e40;
+  text-decoration: none; /* Removes the default blue underline */
+  font-weight: 600;      /* Makes it slightly bold to match the Sign Up text */
+}
+
+/* Adds a nice underline when the user hovers over it */
+.forgot-password:hover {
+  text-decoration: underline;
+}
+
+
+
+/* 1. The Shake Animation! */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  50% { transform: translateX(5px); }
+  75% { transform: translateX(-5px); }
+}
+
+/* 2. The red border and shake that applies to the broken input box */
+.input-with-icon input.input-error {
+  border: 1.5px solid #d9534f;
+  animation: shake 0.3s ease-in-out;
+}
+
+/* 3. The specific red text directly under the input */
+.field-error-text {
+  color: #d9534f;
+  font-size: 13px;
+  margin-top: 5px;
+  text-align: left;
+}
