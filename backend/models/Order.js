@@ -1,17 +1,17 @@
 const mongoose = require('mongoose');
 
 const orderSchema = new mongoose.Schema({
-  customer: {
-    fullName: { type: String, required: true },
-    phone: { type: String, required: true },
-    email: { type: String, required: true },
-    address: { type: String, required: true },
-    city: { type: String, required: true },
-    postalCode: { type: String }
-  },
-  orderItems: { type: Array, required: true }, // Saves the cart items
+  clerkUserId: { type: String },
+  customer: { type: Object, required: true },
+  orderItems: { type: Array, required: true },
   totalAmount: { type: Number, required: true },
-  paymentStatus: { type: String, default: 'Pending' }, // Will change to 'Paid' after PayHere
+  
+  // 🔥 THIS LINE IS MANDATORY! Without it, MongoDB deletes the ID!
+  orderNumber: { type: Number }, 
+  
+  status: { type: String, default: 'Processing' },
+  isDone: { type: Boolean, default: false },
+  paymentStatus: { type: String, default: 'Pending' }
 }, { timestamps: true });
 
 module.exports = mongoose.model('Order', orderSchema);

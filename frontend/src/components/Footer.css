@@ -82,8 +82,8 @@
   align-items: center;
   justify-content: center;
   gap: 12px;
-  background-color: #597a58; /* Matched the muted green from your Figma */
-  color: #ffffff;
+  background-color: #585858; /* Matched the muted green from your Figma */
+  color: #000000;
   font-size: 18px;
   font-weight: bold;
   padding: 10px 20px;

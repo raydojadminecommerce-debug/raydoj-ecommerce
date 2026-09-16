@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useUser } from '@clerk/clerk-react'; 
 import './Checkout.css';
 
 function Checkout({ cartItems, setCartItems, clearCart }) {
   const navigate = useNavigate();
+  const { user } = useUser(); 
 
   const [formData, setFormData] = useState({
     fullName: '',
@@ -39,11 +41,11 @@ function Checkout({ cartItems, setCartItems, clearCart }) {
   const discount = 0; 
   const total = subtotal + shipping - discount;
 
-  const handleSubmitPayment = async (e) => {
+  const handleCheckoutAndWhatsApp = async (e) => {
     e.preventDefault();
     
-    if (!formData.fullName || !formData.phone || !formData.email || !formData.address) {
-      alert('Please fill in all required billing details.');
+    if (!formData.fullName || !formData.phone || !formData.email || !formData.address || !formData.city) {
+      alert('Please fill in all required billing details before proceeding.');
       return;
     }
 
@@ -60,23 +62,57 @@ function Checkout({ cartItems, setCartItems, clearCart }) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          clerkUserId: user?.id, 
           customer: formData,
           orderItems: cartItems,
-          totalAmount: total
+          totalAmount: total,
+          // 🔥 FIXED: Now saves as 'Pending' so it stays invisible on the Profile page!
+          status: 'Pending', 
+          isDone: false
         })
       });
 
       const data = await response.json();
 
       if (response.ok) {
-        console.log("Order saved to database with ID:", data.orderId);
-        alert(`Order successfully saved! ID: ${data.orderId}\nNext step: PayHere Popup!`);
+        console.log("Order perfectly saved to MongoDB!");
+
+        // FORMAT THE CLEAN ORDER ID (e.g., 1 becomes '001', 12 becomes '012')
+        const cleanOrderId = String(data.orderNumber || 1).padStart(3, '0');
+
+        let cartText = '';
+        cartItems.forEach((item, index) => {
+          cartText += `${index + 1}. ${item.title} (Qty: ${item.quantity}) - LKR ${(item.price * item.quantity).toLocaleString()}\n`;
+        });
+
+        const message = `*New Order Request!* 🛍️\n\n` +
+                        `*Order ID:* ${cleanOrderId}\n` + 
+                        `*Customer Details:*\n` +
+                        `Name: ${formData.fullName}\n` +
+                        `Phone: ${formData.phone}\n` +
+                        `Email: ${formData.email}\n\n` +
+                        `*Shipping Address:*\n` +
+                        `${formData.address}, ${formData.city} ${formData.postalCode}\n\n` +
+                        `*Order Items:*\n` +
+                        `${cartText}\n` +
+                        `*Total Amount:* LKR ${total.toLocaleString()}\n\n` +
+                        `Hello! I would like to check the availability of my items and proceed with the bank transfer.`;
+
+        const encodedMessage = encodeURIComponent(message);
+        const businessWhatsAppNumber = "94711300661"; 
+        const whatsappURL = `https://wa.me/${businessWhatsAppNumber}?text=${encodedMessage}`;
+
+        clearCart(); 
+
+        window.open(whatsappURL, '_blank');
+        navigate('/profile'); 
+
       } else {
         alert("Error saving order: " + data.message);
       }
     } catch (error) {
       console.error("Backend connection error:", error);
-      alert("Could not connect to the backend server.");
+      alert("Could not connect to the database. Make sure your Node.js backend is running!");
     }
   };
 
@@ -91,7 +127,7 @@ function Checkout({ cartItems, setCartItems, clearCart }) {
         <p className="checkout-subtitle">Fill in your details and proceed to payment</p>
 
         <div className="checkout-grid">
-          <form className="billing-form" onSubmit={handleSubmitPayment}>
+          <form className="billing-form" onSubmit={handleCheckoutAndWhatsApp}>
             <h2>Billing Details</h2>
 
             <div className="form-group">
@@ -180,22 +216,22 @@ function Checkout({ cartItems, setCartItems, clearCart }) {
             <div className="payment-method-box">
               <div className="payment-header-row">
                 <span>Pay with method</span>
-                <span className="card-logos">💳 VISA</span>
+                <span className="card-logos">💬 WhatsApp</span>
               </div>
               <div className="payment-option selected">
                 <input type="radio" defaultChecked readOnly />
                 <div className="payment-option-label">
-                  <strong>Card payment</strong>
-                  <span className="sub-icons"> Mastercard / Visa</span>
+                  <strong>Bank Transfer</strong>
+                  <span className="sub-icons"> via WhatsApp Support</span>
                 </div>
               </div>
               <div className="payhere-secure-badge">
-                🔒 Secure payment powered by <strong>PayHere</strong>
+                Verify stock and pay securely via Bank Transfer
               </div>
             </div>
 
-            <button type="button" className="proceed-to-payment-btn" onClick={handleSubmitPayment}>
-              Proceed to payment
+            <button type="button" className="proceed-to-payment-btn" onClick={handleCheckoutAndWhatsApp}>
+              Proceed via WhatsApp
             </button>
 
             <div className="secure-checkout-footer">

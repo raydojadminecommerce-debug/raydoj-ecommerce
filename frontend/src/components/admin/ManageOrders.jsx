@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './ManageOrders.css';
 
 // Reusing your awesome icons!
@@ -7,39 +7,103 @@ import settingsIcon from '../../assets/settings.png';
 import imageIcon from '../../assets/image.png';
 
 const ManageOrders = () => {
-  // 1. State for the cool Tab Transition
   const [activeTab, setActiveTab] = useState('ongoing');
+  
+  // Start with an empty array. Data will come from the live database!
+  const [orders, setOrders] = useState([]);
 
-  // 2. State to hold our orders so we can move them around
-  const [orders, setOrders] = useState([
-    {
-      id: "001",
-      productName: "COW Leather Shii",
-      price: "24000",
-      sku: "001",
-      customerName: "Savithu virran perera",
-      address: "14/2 grace perice rd panadura",
-      city: "Panadura",
-      phone1: "0724907010",
-      phone2: "0760335049",
-      status: "Processing", // Default status
-      isDone: false // Tells us which tab it belongs in!
-    }
-  ]);
+  // 🔥 1. FETCH ALL ORDERS FROM MONGODB WHEN PAGE LOADS
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/orders');
+        
+        if (response.ok) {
+          const dbOrders = await response.json();
+          
+          // 🔥 SMART MAPPER: Translates MongoDB Checkout structure to fit your exact UI design perfectly
+          const formattedOrders = dbOrders.map(dbOrder => ({
+            _id: dbOrder._id, // Real MongoDB ID for saving updates
+            
+            // 🔥 FIX 1: If orderNumber exists, pad it (001). If it's missing from the DB, use the last 4 random letters so it NEVER repeats 001!
+            id: dbOrder.orderNumber ? String(dbOrder.orderNumber).padStart(3, '0') : dbOrder._id.substring(dbOrder._id.length - 4).toUpperCase(), 
+            
+            productName: dbOrder.orderItems && dbOrder.orderItems.length > 0 ? dbOrder.orderItems[0].title : "Custom Item",
+            
+            // 🔥 FIX 2: Safely checks if the item has a real image. If not, uses the default icon.
+            image: dbOrder.orderItems && dbOrder.orderItems.length > 0 && dbOrder.orderItems[0].image ? dbOrder.orderItems[0].image : imageIcon,
+            
+            price: dbOrder.totalAmount,
+            sku: dbOrder.orderItems && dbOrder.orderItems.length > 0 ? dbOrder.orderItems[0].id : "N/A",
+            customerName: dbOrder.customer?.fullName || "Unknown",
+            address: dbOrder.customer?.address || "No Address",
+            city: dbOrder.customer?.city || "No City",
+            phone1: dbOrder.customer?.phone || "No Phone",
+            phone2: "N/A", // Only 1 phone number was collected in Checkout
+            status: dbOrder.status || "Processing", 
+            isDone: dbOrder.isDone || false 
+          }));
 
-  // 3. Function to move an order to the "Done" tab
-  const handleMarkAsDone = (orderId) => {
-    setOrders(orders.map(order => 
-      order.id === orderId ? { ...order, isDone: true } : order
+          setOrders(formattedOrders); // Injects live data into your screen!
+        }
+      } catch (error) {
+        console.error("Error fetching orders from database:", error);
+      }
+    };
+
+    fetchOrders();
+  }, []);
+
+  // 🔥 2. SEND "DONE" UPDATE TO MONGODB
+  const handleMarkAsDone = async (order) => {
+    // Update local UI instantly for a snappy feel
+    setOrders(orders.map(o => 
+      o._id === order._id ? { ...o, isDone: true } : o
     ));
-    alert("Order successfully moved to Done Orders!");
+
+    try {
+      // Tell MongoDB to permanently mark this as Done
+      const response = await fetch(`http://localhost:5000/api/orders/${order._id}/done`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isDone: true })
+      });
+
+      if (response.ok) {
+        alert("Order successfully moved to Done Orders in the database!");
+      } else {
+        alert("Warning: Could not connect to database to save 'Done' status.");
+      }
+    } catch (error) {
+      console.error("Failed to update database", error);
+    }
   };
 
-  // 4. Function to update Processing/Packed/etc. (For now, just a visual update)
+  // 3. Update the local radio button visually
   const handleStatusChange = (orderId, newStatus) => {
     setOrders(orders.map(order => 
-      order.id === orderId ? { ...order, status: newStatus } : order
+      order._id === orderId ? { ...order, status: newStatus } : order
     ));
+  };
+
+  // 🔥 4. SEND STATUS UPDATE (Processing/Shipped/etc) TO MONGODB
+  const handleSaveStatus = async (order) => {
+    try {
+      // Tell MongoDB what the new status is so the Customer Profile page can see it!
+      const response = await fetch(`http://localhost:5000/api/orders/${order._id}/status`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: order.status })
+      });
+
+      if (response.ok) {
+        alert(`Customer tracking status successfully saved as: ${order.status}!`);
+      } else {
+        alert("Warning: Could not save status to database.");
+      }
+    } catch (error) {
+      console.error("Failed to save status to database", error);
+    }
   };
 
   // Filter the orders based on which tab we are looking at
@@ -75,21 +139,25 @@ const ManageOrders = () => {
         </button>
       </div>
 
-      {/* ORDERS LIST (With a fade-in transition class!) */}
+      {/* ORDERS LIST */}
       <div className="orders-list fade-in" key={activeTab}>
         {displayedOrders.length === 0 ? (
           <p className="empty-message">No orders in this section right now!</p>
         ) : (
           displayedOrders.map((order) => (
-            <div className="order-card" key={order.id}>
+            <div className="order-card" key={order._id}>
               
               {/* Left Column: Product Info */}
               <div className="order-product-info">
                 <div className="order-img-box">
-                  <img src={imageIcon} alt="Product" className="order-placeholder-img" />
+                  <img 
+                    src={order.image} 
+                    alt="Product" 
+                    style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '8px' }}
+                  />
                 </div>
                 <div className="order-text-sm">
-                  <strong>{order.productName} - LKR {order.price}</strong>
+                  <strong>{order.productName} - LKR {order.price?.toLocaleString()}</strong>
                   <p>SKU : {order.sku}</p>
                   <p>Order ID : {order.id}</p>
                 </div>
@@ -109,9 +177,10 @@ const ManageOrders = () => {
                     <h5>ORDER</h5>
                     <div className="radio-group">
                       <label>Done</label>
-                      <input type="radio" name={`done-${order.id}`} />
+                      <input type="radio" name={`done-${order._id}`} />
                     </div>
-                    <button className="save-btn" onClick={() => handleMarkAsDone(order.id)}>SAVE</button>
+                    {/* Maps to the MongoDB mark as done function */}
+                    <button className="save-btn" onClick={() => handleMarkAsDone(order)}>SAVE</button>
                   </div>
                 )}
               </div>
@@ -125,13 +194,14 @@ const ManageOrders = () => {
                       <label>{statusOption}</label>
                       <input 
                         type="radio" 
-                        name={`status-${order.id}`} 
+                        name={`status-${order._id}`} 
                         checked={order.status === statusOption}
-                        onChange={() => handleStatusChange(order.id, statusOption)}
+                        onChange={() => handleStatusChange(order._id, statusOption)}
                       />
                     </div>
                   ))}
-                  <button className="save-btn" onClick={() => alert("Customer tracking status updated!")}>SAVE</button>
+                  {/* Maps to the MongoDB save status function */}
+                  <button className="save-btn" onClick={() => handleSaveStatus(order)}>SAVE</button>
                 </div>
               )}
               

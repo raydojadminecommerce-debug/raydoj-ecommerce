@@ -2,6 +2,11 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './Cart.css';
 
+// 🔥 Import your custom icons from the assets folder
+import deleteIcon from '../assets/delete.png';
+import deliveryIcon from '../assets/delivery.png';
+import secureIcon from '../assets/secure.png';
+
 export default function Cart({ cartItems, setCartItems }) {
   const navigate = useNavigate();
 
@@ -53,7 +58,10 @@ export default function Cart({ cartItems, setCartItems }) {
                   <div className="cart-item-details">
                     <div className="item-title-row">
                       <h3>{item.title}</h3>
-                      <button className="remove-item-btn" onClick={() => removeItem(item.id)}>X</button>
+                      {/* 🔥 Replaced 'X' text with delete.png icon */}
+                      <button className="remove-item-btn" onClick={() => removeItem(item.id)} title="Remove item">
+                        <img src={deleteIcon} alt="Delete" style={{ width: '16px', height: '16px', objectFit: 'contain' }} />
+                      </button>
                     </div>
                     <p className="item-variant">{item.variant}</p>
                     <div className="item-price-row">
@@ -68,8 +76,11 @@ export default function Cart({ cartItems, setCartItems }) {
                   </div>
                 </div>
               ))}
-              <button className="clear-cart-btn" onClick={clearCart}>
-                🗑 Clear Cart
+              
+              {/* 🔥 Replaced Clear Cart text button style with delete.png icon */}
+              <button className="clear-cart-btn" onClick={clearCart} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <img src={deleteIcon} alt="Clear" style={{ width: '16px', height: '16px', objectFit: 'contain' }} />
+                Clear Cart
               </button>
             </div>
 
@@ -92,10 +103,19 @@ export default function Cart({ cartItems, setCartItems }) {
                 <span>Total</span>
                 <span>LKR {subtotal.toLocaleString()}</span>
               </div>
+              
+              {/* 🔥 Added your custom delivery.png and secure.png icons here */}
               <div className="summary-perks">
-                <p>🚚 Free shipping Island wide</p>
-                <p>🛡️ Secure checkout</p>
+                <p style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <img src={deliveryIcon} alt="Delivery" style={{ width: '20px', height: '20px', objectFit: 'contain' }} /> 
+                  Free shipping Island wide
+                </p>
+                <p style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <img src={secureIcon} alt="Secure" style={{ width: '20px', height: '20px', objectFit: 'contain' }} /> 
+                  Secure checkout
+                </p>
               </div>
+
               <button 
                 className="checkout-btn" 
                 onClick={() => navigate('/checkout')}

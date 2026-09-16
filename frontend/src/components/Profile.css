@@ -1,0 +1,165 @@
+.profile-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.profile-container {
+  max-width: 800px; /* 🔥 Reduced from 900px for a more natural fit */
+  margin: 120px auto 50px; 
+  padding: 0 20px;
+  flex-grow: 1;
+  width: 100%;
+}
+
+/* Header Section */
+.profile-header {
+  display: flex;
+  align-items: center;
+  gap: 30px; /* Slightly tighter gap */
+  margin-bottom: 40px;
+}
+
+.profile-image {
+  width: 160px; /* 🔥 Scaled down from 200px */
+  height: 160px;
+  border-radius: 50%;
+  object-fit: cover;
+  background-color: #d9d9d9;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+.profile-info h1 {
+  font-size: 28px; /* 🔥 Toned down from 32px */
+  margin: 0 0 12px 0;
+  text-transform: uppercase;
+  color: #111;
+}
+
+.edit-profile-btn {
+  background-color: #000 !important;
+  color: #fff !important;
+  padding: 8px 20px !important; /* Slightly slimmer */
+  border: none !important;
+  border-radius: 5px !important;
+  font-size: 14px !important; 
+  font-weight: bold !important;
+  cursor: pointer;
+  margin-bottom: 12px;
+}
+
+.welcome-text {
+  color: #666;
+  font-size: 15px; /* Slightly smaller text */
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Order Card Section */
+.recent-order-card {
+  background-color: #f7f7f7;
+  border-radius: 12px;
+  padding: 25px;
+  display: flex;
+  gap: 25px;
+  margin-bottom: 40px;
+  align-items: center;
+}
+
+.order-item-image {
+  width: 140px;
+  height: 140px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.order-details h2 {
+  font-size: 20px;
+  margin: 0 0 8px 0;
+  line-height: 1.3;
+}
+
+.order-number {
+  font-size: 14px;
+  color: #666;
+  margin: 0 0 10px 0;
+}
+
+.order-status {
+  font-size: 14px;
+  color: #333;
+  margin: 0;
+}
+
+/* No Orders Message Section */
+.no-orders-message {
+  background-color: #f7f7f7;
+  border-radius: 12px;
+  padding: 40px 25px; /* Scaled down the padding slightly */
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.no-orders-message p {
+  color: #555;
+  font-size: 16px; /* Back down to 16px */
+  font-weight: 500;
+  margin: 0;
+}
+
+/* Action Buttons Grid */
+.action-buttons-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px; 
+}
+
+.action-btn {
+  background-color: #f9f9f9 !important; 
+  color: #111 !important;
+  border: 1px solid #ddd !important;
+  padding: 16px 24px !important;  /* 🔥 Slightly thinner pills */
+  border-radius: 35px !important; 
+  font-size: 16px !important; /* 🔥 Shrunk from 18px */
+  font-weight: 600 !important;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: auto !important; 
+}
+
+.action-btn:hover {
+  background-color: #ececec !important;
+  border-color: #ccc !important;
+}
+
+.action-btn:nth-child(5) {
+  grid-column: 1 / 2;
+}
+
+/* 🔥 MOBILE RESPONSIVENESS */
+@media (max-width: 768px) {
+  .profile-container {
+    margin-top: 100px;
+  }
+  .profile-header {
+    flex-direction: column;
+    text-align: center;
+    gap: 15px;
+  }
+  .profile-image {
+    width: 130px;
+    height: 130px;
+  }
+  .profile-info h1 {
+    font-size: 24px;
+  }
+  .action-buttons-grid {
+    grid-template-columns: 1fr;
+  }
+  .action-btn:nth-child(5) {
+    grid-column: auto;
+  }
+}

@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { ClerkProvider } from '@clerk/clerk-react'; // 🔥 1. Import Clerk
+import { ClerkProvider } from '@clerk/clerk-react'; 
 
 // Import Pages & Modals
 import LoginModal from './pages/LoginModal';
@@ -15,13 +15,13 @@ import Hero from './components/Hero';
 import ProductGrid from './components/ProductGrid';
 import About from './components/About';
 import Footer from './components/Footer';
+import Profile from './components/Profile'; 
 
 // Import Admin Components
 import AdminDashboard from './components/admin/AdminDashboard';
 import ManageProducts from './components/admin/ManageProducts'; 
 import ManageOrders from './components/admin/ManageOrders'; 
 
-// 🔥 2. Grab the Clerk key from your .env file
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
 if (!PUBLISHABLE_KEY) {
@@ -32,11 +32,17 @@ function App() {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isSignUpModalOpen, setIsSignUpModalOpen] = useState(false);
   
-  // Automatically checks if token exists on page load!
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('token')); 
 
-  // Global Cart State
-  const [cartItems, setCartItems] = useState([]);
+  // Global Cart State with localStorage persistence
+  const [cartItems, setCartItems] = useState(() => {
+    const savedCart = localStorage.getItem('raydoj_cart');
+    return savedCart ? JSON.parse(savedCart) : [];
+  });
+
+  useEffect(() => {
+    localStorage.setItem('raydoj_cart', JSON.stringify(cartItems));
+  }, [cartItems]);
 
   const handleAddToCart = (product) => {
     setCartItems(prev => {
@@ -69,7 +75,6 @@ function App() {
     closeModals();
   };
 
-  // Handle Logout Logic
   const handleLogout = () => {
     localStorage.removeItem('token');
     setIsLoggedIn(false);
@@ -77,7 +82,6 @@ function App() {
   };
 
   return (
-    // 🔥 3. Wrap everything inside the ClerkProvider
     <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
       <BrowserRouter>
         <LoginModal 
@@ -140,6 +144,21 @@ function App() {
             </div>
           } />
 
+          <Route path="/profile" element={
+            <div>
+              <Navbar 
+                isLoggedIn={isLoggedIn} 
+                openLoginModal={openLoginModal} 
+                cartCount={cartCount} 
+                onLogout={handleLogout} 
+              />
+              
+              <Profile />
+              
+              <Footer />
+            </div>
+          } />
+
           {/* ADMIN ROUTES */}
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin/products" element={<ManageProducts />} />
@@ -151,4 +170,5 @@ function App() {
   );
 }
 
+App.displayName = 'App';
 export default App;

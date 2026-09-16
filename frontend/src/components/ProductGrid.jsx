@@ -22,7 +22,7 @@ const ProductGrid = () => {
   }, []);
 
   return (
-    <div className="product-section">
+    <div className="product-section" id="products">
       <div className="grid-container">
         {products.map((product) => (
           <Link 
