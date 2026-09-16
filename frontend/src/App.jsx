@@ -1,5 +1,4 @@
-<<<<<<<<< Temporary merge branch 1
-import React from 'react';
+import React, { useState } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { ClerkProvider } from '@clerk/clerk-react'; // 🔥 1. Import Clerk
 
@@ -11,30 +10,23 @@ import Product from './pages/Product';
 import Checkout from './pages/Checkout'; 
 
 // Import Home Page Components
-=========
-import React, { useState } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-
-// Components
->>>>>>>>> Temporary merge branch 2
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import ProductGrid from './components/ProductGrid';
 import About from './components/About';
 import Footer from './components/Footer';
 
-<<<<<<<<< Temporary merge branch 1
 // Import Admin Components
 import AdminDashboard from './components/admin/AdminDashboard';
 import ManageProducts from './components/admin/ManageProducts'; 
-import ManageOrders from './components/admin/ManageOrders'; // Imported perfectly!
-=========
-// Pages
-import Product from './pages/Product';
-import Cart from './pages/Cart';
-import LoginModal from './pages/LoginModal'; 
-import SignUpModal from './pages/SignUpModal'; // <-- 1. Import the new Sign Up file!
->>>>>>>>> Temporary merge branch 2
+import ManageOrders from './components/admin/ManageOrders'; 
+
+// 🔥 2. Grab the Clerk key from your .env file
+const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
+
+if (!PUBLISHABLE_KEY) {
+  throw new Error("Missing Publishable Key. Check your frontend/.env file!");
+}
 
 function App() {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
@@ -85,65 +77,77 @@ function App() {
   };
 
   return (
-    <BrowserRouter>
-      <Routes>
-<<<<<<<<< Temporary merge branch 1
+    // 🔥 3. Wrap everything inside the ClerkProvider
+    <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
+      <BrowserRouter>
+        <LoginModal 
+          isOpen={isLoginModalOpen} 
+          onClose={closeModals} 
+          onSwitchToSignUp={openSignUpModal} 
+          onLoginSuccess={handleLoginSuccess} 
+        />
         
-        {/* PAGE 1: THE HOME PAGE */}
-=========
->>>>>>>>> Temporary merge branch 2
-        <Route path="/" element={
-          <div>
-            <Navbar 
-              isLoggedIn={isLoggedIn} 
-              openLoginModal={() => setIsLoginModalOpen(true)} 
-            />
-            <Hero />
-            <ProductGrid />
-            <About />
-            <Footer />
-          </div>
-        } />
+        <SignUpModal 
+          isOpen={isSignUpModalOpen} 
+          onClose={closeModals} 
+          onSwitchToLogin={openLoginModal} 
+          onSignUpSuccess={handleLoginSuccess} 
+        />
 
-<<<<<<<<< Temporary merge branch 1
-        {/* PAGE 2: THE MAIN ADMIN DASHBOARD */}
-        <Route path="/admin" element={<AdminDashboard />} />
+        <Routes>
+          <Route path="/" element={
+            <div>
+              <Navbar isLoggedIn={isLoggedIn} openLoginModal={openLoginModal} cartCount={cartCount} onLogout={handleLogout} />
+              <Hero />
+              <ProductGrid />
+              <About />
+              <Footer />
+            </div>
+          } />
 
-        {/* PAGE 3: MANAGE PRODUCTS PAGE */}
-        <Route path="/admin/products" element={<ManageProducts />} />
+          <Route path="/cart" element={
+            <div>
+              <Navbar isLoggedIn={isLoggedIn} openLoginModal={openLoginModal} cartCount={cartCount} onLogout={handleLogout} />
+              <Cart cartItems={cartItems} setCartItems={setCartItems} /> 
+              <Footer />
+            </div>
+          } />
 
-        {/* PAGE 4: MANAGE ORDERS PAGE (THIS IS WHAT WAS MISSING!) */}
-        <Route path="/admin/orders" element={<ManageOrders />} />
+          <Route path="/product/:id" element={
+            <div>
+              <Navbar isLoggedIn={isLoggedIn} openLoginModal={openLoginModal} cartCount={cartCount} onLogout={handleLogout} />
+              <Product isLoggedIn={isLoggedIn} openLoginModal={openLoginModal} addToCart={handleAddToCart} /> 
+              <Footer />
+            </div>
+          } />
 
-      </Routes>
-    </BrowserRouter>
-=========
-        <Route path="/product/:id" element={<Product />} />
-        <Route path="/cart" element={<Cart />} />
-      </Routes>
+         <Route path="/checkout" element={
+            <div>
+              <Navbar 
+                isLoggedIn={isLoggedIn} 
+                openLoginModal={openLoginModal} 
+                cartCount={cartCount} 
+                onLogout={handleLogout} 
+              />
+              
+              <Checkout 
+                cartItems={cartItems} 
+                setCartItems={setCartItems} 
+                clearCart={clearCart} 
+              />
+              
+              <Footer />
+            </div>
+          } />
 
-      {/* 5. Drop both modals here at the bottom and pass them the functions */}
-      <LoginModal 
-        isOpen={isLoginModalOpen} 
-        onClose={() => setIsLoginModalOpen(false)}
-        onLoginSuccess={() => {
-          setIsLoggedIn(true); 
-          setIsLoginModalOpen(false); 
-        }}
-        onSwitchToSignUp={openSignUp} /* Passes the swap function to Login */
-      />
+          {/* ADMIN ROUTES */}
+          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/admin/products" element={<ManageProducts />} />
+          <Route path="/admin/orders" element={<ManageOrders />} />
 
-      <SignUpModal 
-        isOpen={isSignUpModalOpen} 
-        onClose={() => setIsSignUpModalOpen(false)}
-        onSignUpSuccess={() => {
-          setIsLoggedIn(true); 
-          setIsSignUpModalOpen(false); 
-        }}
-        onSwitchToLogin={openLogin} /* Passes the swap function to Sign Up */
-      />
-    </Router>
->>>>>>>>> Temporary merge branch 2
+        </Routes>
+      </BrowserRouter>
+    </ClerkProvider>
   );
 }
 
