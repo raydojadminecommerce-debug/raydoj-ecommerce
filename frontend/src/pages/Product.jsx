@@ -22,7 +22,15 @@ function Product({ isLoggedIn, openLoginModal, addToCart }) {
 
     const fetchProductData = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/products');
+
+
+
+       const response = await fetch(`${import.meta.env.VITE_API_URL}/api/products`);
+
+
+
+
+       
         
         if (response.ok) {
           const allDbProducts = await response.json();
