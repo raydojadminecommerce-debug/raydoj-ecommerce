@@ -25,12 +25,13 @@ function Product({ isLoggedIn, openLoginModal, addToCart }) {
 
 
 
-       const response = await fetch(`${import.meta.env.VITE_API_URL}/api/products`);
+      const API_URL = import.meta.env.VITE_API_URL || "https://raydoj-ecommerce-production.up.railway.app";
+const response = await fetch(`${API_URL}/api/products`);
 
 
 
 
-       
+
         
         if (response.ok) {
           const allDbProducts = await response.json();
