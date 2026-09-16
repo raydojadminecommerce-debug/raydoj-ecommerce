@@ -6,6 +6,8 @@ import logo from '../../assets/logo.png';
 import settingsIcon from '../../assets/settings.png';
 import imageIcon from '../../assets/image.png';
 
+const API_URL = import.meta.env.VITE_API_URL || "https://raydoj-ecommerce-production.up.railway.app";
+
 const ManageOrders = () => {
   const [activeTab, setActiveTab] = useState('ongoing');
   
@@ -16,7 +18,7 @@ const ManageOrders = () => {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/orders');
+        const response = await fetch(`${API_URL}/api/orders`);
         
         if (response.ok) {
           const dbOrders = await response.json();
@@ -63,7 +65,7 @@ const ManageOrders = () => {
 
     try {
       // Tell MongoDB to permanently mark this as Done
-      const response = await fetch(`http://localhost:5000/api/orders/${order._id}/done`, {
+      const response = await fetch(`${API_URL}/api/orders/${order._id}/done`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ isDone: true })
@@ -90,7 +92,7 @@ const ManageOrders = () => {
   const handleSaveStatus = async (order) => {
     try {
       // Tell MongoDB what the new status is so the Customer Profile page can see it!
-      const response = await fetch(`http://localhost:5000/api/orders/${order._id}/status`, {
+      const response = await fetch(`${API_URL}/api/orders/${order._id}/status`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: order.status })

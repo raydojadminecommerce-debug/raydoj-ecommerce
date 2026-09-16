@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useUser } from '@clerk/clerk-react';
 import './Profile.css';
 
+const API_URL = import.meta.env.VITE_API_URL || "https://raydoj-ecommerce-production.up.railway.app";
+
 const Profile = () => {
   const { isLoaded, isSignedIn, user } = useUser();
   const [userOrders, setUserOrders] = useState([]);
@@ -13,7 +15,7 @@ const Profile = () => {
       if (!user?.id) return;
 
       try {
-        const response = await fetch(`http://localhost:5000/api/orders/user/${user.id}`);
+        const response = await fetch(`${API_URL}/api/orders/user/${user.id}`);
         if (response.ok) {
           const data = await response.json();
           setUserOrders(data);

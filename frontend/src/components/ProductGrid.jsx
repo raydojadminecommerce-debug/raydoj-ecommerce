@@ -3,13 +3,15 @@ import { Link } from 'react-router-dom';
 import './ProductGrid.css';
 import fallbackImage from '../assets/black-1.webp'; 
 
+const API_URL = import.meta.env.VITE_API_URL || "https://raydoj-ecommerce-production.up.railway.app";
+
 const ProductGrid = () => {
   const [products, setProducts] = useState([]);
 
   useEffect(() => {
     const fetchHomeProducts = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/products');
+        const response = await fetch(`${API_URL}/api/products`);
         if (response.ok) {
           const data = await response.json();
           setProducts(data.slice(0, 6)); 

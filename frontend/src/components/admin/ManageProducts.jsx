@@ -4,6 +4,8 @@ import logo from '../../assets/logo.png';
 import imageIcon from '../../assets/image.png'; 
 import settingsIcon from '../../assets/settings.png'; 
 
+const API_URL = import.meta.env.VITE_API_URL || "https://raydoj-ecommerce-production.up.railway.app";
+
 const ManageProducts = () => {
   const [products, setProducts] = useState([]); // Stores data from MongoDB
   const [isEditing, setIsEditing] = useState(false);
@@ -21,7 +23,7 @@ const ManageProducts = () => {
   // 🌟 1. FETCH ALL PRODUCTS ON PAGE LOAD 🌟
   const fetchProducts = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/products');
+      const response = await fetch(`${API_URL}/api/products`);
       const data = await response.json();
       setProducts(data);
     } catch (error) {
@@ -65,7 +67,7 @@ const ManageProducts = () => {
   const handleDeleteClick = async (id) => {
     if (window.confirm("Are you sure you want to delete this product?")) {
       try {
-        await fetch(`http://localhost:5000/api/products/${id}`, { method: 'DELETE' });
+        await fetch(`${API_URL}/api/products/${id}`, { method: 'DELETE' });
         fetchProducts(); // Refresh the list
       } catch (error) {
         console.log("Error deleting product:", error);
@@ -143,7 +145,7 @@ const ManageProducts = () => {
       const finalProductData = { ...formData, images: uploadedImageUrls };
 
       // Choose whether to POST (new) or PUT (edit)
-      const url = isEditing ? `http://localhost:5000/api/products/${editingId}` : 'http://localhost:5000/api/products';
+      const url = isEditing ? `${API_URL}/api/products/${editingId}` : `${API_URL}/api/products`;
       const method = isEditing ? 'PUT' : 'POST';
 
       const response = await fetch(url, {
@@ -215,20 +217,17 @@ const ManageProducts = () => {
           </button>
         </div>
 
-        {/* RIGHT SIDE: PRODUCT LIST (Now completely dynamic!) */}
+        {/* RIGHT SIDE: PRODUCT LIST */}
         <div className="list-section">
           <h2 className="list-title">All Products</h2>
           <div className="product-list">
             
-            {/* If no products exist, show a message */}
             {products.length === 0 && <p style={{ textAlign: 'center', color: '#888' }}>No products found.</p>}
 
-            {/* Loop through real database products */}
             {products.map((product) => (
               <div key={product._id} className="product-card">
                 <div className="product-card-left">
                   <div className="img-placeholder-small">
-                    {/* Grabs the first image from the array, or falls back to placeholder */}
                     <img src={product.images && product.images.length > 0 ? product.images[0] : imageIcon} alt="Product Cover" className={product.images && product.images.length > 0 ? "uploaded-img-preview" : "custom-placeholder-img-small"} style={product.images && product.images.length > 0 ? { width: '100%', height: '100%', objectFit: 'cover', borderRadius: '8px' } : {}}/>
                   </div>
                   <div className="product-details">

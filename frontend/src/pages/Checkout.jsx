@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useUser } from '@clerk/clerk-react'; 
 import './Checkout.css';
 
+const API_URL = import.meta.env.VITE_API_URL || "https://raydoj-ecommerce-production.up.railway.app";
+
 function Checkout({ cartItems, setCartItems, clearCart }) {
   const navigate = useNavigate();
   const { user } = useUser(); 
@@ -56,7 +58,7 @@ function Checkout({ cartItems, setCartItems, clearCart }) {
     }
 
     try {
-      const response = await fetch('http://localhost:5000/api/orders', {
+      const response = await fetch(`${API_URL}/api/orders`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
