@@ -1,5 +1,5 @@
 .page-wrapper {
-  padding-top: 40px;
+  padding-top: 120px; /* Increased from 40px to prevent navbar overlap */
   padding-bottom: 60px;
   background-color: #ffffff;
   color: #000000;

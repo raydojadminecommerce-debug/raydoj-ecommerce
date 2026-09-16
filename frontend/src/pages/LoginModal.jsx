@@ -1,9 +1,12 @@
-import React, { useState, useEffect } from 'react'; // 🔥 1. Imported useEffect
-import { SignInButton, useAuth } from '@clerk/clerk-react'; // 🔥 2. Imported useAuth
+import React, { useState, useEffect } from 'react';
+import { SignInButton, useAuth, useSignIn } from '@clerk/clerk-react';
 import './LoginModal.css';
 import logo from '../assets/logo.png'; 
 
 export default function LoginModal({ isOpen, onClose, onLoginSuccess, onSwitchToSignUp }) {
+  const { isLoaded, signIn, setActive } = useSignIn();
+  const { isSignedIn } = useAuth();
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false); 
@@ -13,14 +16,10 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, onSwitchTo
   const [passwordError, setPasswordError] = useState('');
   const [serverError, setServerError] = useState('');
 
-  // 🔥 3. Check if Clerk successfully logged the user in via Google
-  const { isSignedIn } = useAuth();
-
-  // 🔥 4. If Google login succeeds, automatically set token and close modal!
+  // Close modal when Google (or typed) sign-in finishes
   useEffect(() => {
     if (isSignedIn) {
-      localStorage.setItem('token', 'clerk-google-token'); // Tell your custom app you are logged in
-      onLoginSuccess(); 
+      if (onLoginSuccess) onLoginSuccess();
     }
   }, [isSignedIn, onLoginSuccess]);
 
@@ -39,27 +38,24 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, onSwitchTo
       isValid = false;
     }
 
-    if (isValid) {
+    if (isValid && isLoaded) {
       try {
-        const response = await fetch('http://localhost:5000/api/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, password })
+        // Authenticate directly through Clerk
+        const result = await signIn.create({
+          identifier: email,
+          password: password,
         });
 
-        const data = await response.json();
-
-        if (response.ok) {
-          localStorage.setItem('token', data.token);
+        if (result.status === 'complete') {
+          await setActive({ session: result.createdSessionId });
           if (rememberMe) {
             localStorage.setItem('rememberedEmail', email);
           }
-          onLoginSuccess(); 
-        } else {
-          setServerError(data.message || 'Login failed.');
+          if (onLoginSuccess) onLoginSuccess();
+          onClose();
         }
-      } catch (error) {
-        setServerError('Server is down. Please try again later.');
+      } catch (err) {
+        setServerError(err.errors?.[0]?.message || 'Invalid email or password.');
       }
     }
   };
@@ -77,8 +73,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, onSwitchTo
           <p>Enter your details to access your account.</p>
         </div>
 
-        <form className="login-form">
-          
+        <form className="login-form" onSubmit={(e) => e.preventDefault()}>
           <div className="input-group">
             <label>Email</label>
             <div className="input-with-icon">
@@ -107,7 +102,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, onSwitchTo
               />
               <svg className="password-toggle-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" onClick={() => setShowPassword(!showPassword)}>
                 {showPassword ? (
-                  <><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></>
+                  <><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></>
                 ) : (
                   <><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></>
                 )}
@@ -147,7 +142,6 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, onSwitchTo
         <p className="signup-link">
           Don't have an account? <span className="toggle-link" onClick={onSwitchToSignUp}>Sign Up</span>
         </p>
-
       </div>
     </div>
   );
